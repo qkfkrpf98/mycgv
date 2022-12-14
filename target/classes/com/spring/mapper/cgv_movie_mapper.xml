@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+<mapper namespace="mapper.movie">
+	<!-- movie insert -->
+	<insert id="insert" parameterType="com.mycgv.vo.CgvMovieVO">
+		insert into cgv_movie values('m_'||sequ_cgv_movie.nextval,#{mcategory},#{mname},#{mdesc},sysdate )
+	</insert>
+	
+	<!-- movie mid -->
+	<select id="mid" resultType="java.lang.String">
+		select  mid from (select mid from cgv_movie order by mdate desc) where rownum=1
+	</select>
+	
+	<!-- movie insertfile -->
+	<insert id="insertfile" parameterType="com.mycgv.vo.CgvMovieVO">
+		insert into cgv_movie_file 
+			values('f_'||sequ_cgv_movie_file.nextval,#{mfile1},#{msfile1},#{mfile2},#{msfile2},#{mid} )
+	</insert> 
+
+	<!-- movie totalcount -->
+	<select id="totalcount" resultType="int">
+		select count(*) from cgv_movie
+	</select>
+	
+	<!-- movie list -->
+	<select id="list" parameterType="map" resultType="com.mycgv.vo.CgvMovieVO">
+		select rno, mid,mcategory, mname,mdate 
+				 from (select rownum rno, mid,mcategory, mname,mdate 
+				           from (select mid, mcategory, mname,mdate from cgv_movie
+				  	     order by mdate desc)) 
+				 where rno between #{start} and #{end}
+	</select>
+
+	<!-- movie content -->
+	<select id="content" parameterType="java.lang.String" resultType="com.mycgv.vo.CgvMovieVO">
+		select cm.mid,mcategory,mname, mdesc,mdate,mfile1,msfile1,mfile2,msfile2 
+		from cgv_movie cm, cgv_movie_file cmf 
+		where cm.mid = cmf.mid and cm.mid=#{mid}
+	</select>
+	
+	<select id="selectAll"  resultType="com.mycgv.vo.CgvMovieVO">
+		select rno mid, mname, mfile1,msfile1
+		from(select rownum rno, mid, mname, mfile1,msfile1
+			from(select cm.mid, mname, mfile1,msfile1
+				from cgv_movie cm, cgv_movie_file cmf 
+                where cm.mid = cmf.mid order by mid desc))
+		where rno between 1 and 5
+		 
+	</select>
+	
+</mapper>
+	
